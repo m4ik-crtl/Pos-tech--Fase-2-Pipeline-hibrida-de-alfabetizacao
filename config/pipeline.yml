@@ -1,0 +1,61 @@
+# ============================================================================
+# Configuração da pipeline — Tech Challenge Fase 2
+# Todos os caminhos são RELATIVOS à raiz do repositório.
+# Qualquer chave pode ser sobrescrita por variável de ambiente (ver src/config.py).
+# ============================================================================
+
+projeto: alfabetizacao-brasil
+versao: "1.0.0"
+
+caminhos:
+  dados: data
+  externo: data/externo # snapshots versionados das fontes públicas
+  raw: data/raw # entradas do pipeline (versionadas no Git)
+  lakehouse: data/lakehouse # bronze/silver/gold gerados (ignorados no Git)
+
+spark:
+  master: "local[*]"
+  # delta | parquet. Em "delta" o projeto tenta baixar o jar do Delta Lake;
+  # se o repositório Maven não estiver acessível, cai automaticamente para
+  # parquet e registra o downgrade no log e no manifesto de execução.
+  formato_tabela: delta
+  shuffle_partitions: 8
+
+streaming:
+  # kafka   -> broker real (docker compose / Azure Event Hubs)
+  # arquivo -> file source do Structured Streaming (fallback offline)
+  fonte: kafka
+  bootstrap_servers: "localhost:9092"
+  topico: "alfabetizacao.eventos.v1"
+  dir_arquivos: data/stream_in
+  dir_checkpoints: data/_checkpoints
+  # janela de agregação e tolerância a atraso (dados fora de ordem)
+  janela_minutos: 5
+  watermark_minutos: 10
+  # tempo máximo (s) que o job de streaming fica no ar no modo demonstração
+  duracao_demo_segundos: 90
+
+dominio:
+  # anos com resultado publicado do Indicador Criança Alfabetizada
+  anos: [2023, 2024, 2025]
+  # trajetória de metas do Compromisso Nacional Criança Alfabetizada
+  anos_meta: [2024, 2025, 2026, 2027, 2028, 2029, 2030]
+  # ponto de corte da escala de proficiência do Saeb (Pesquisa Alfabetiza Brasil)
+  ponto_corte_saeb: 743
+  semente: 42
+
+qualidade:
+  # se um check crítico falhar, o job para (fail-fast) em vez de propagar lixo
+  parar_em_falha_critica: true
+  # registros reprovados vão para a quarentena em vez de sumirem
+  quarentena: true
+
+finops:
+  moeda: BRL
+  # premissas usadas em src/finops/estimativa_custos.py (documentadas em docs/finops.md)
+  preco_dbu_jobs_usd: 0.15
+  preco_dbu_all_purpose_usd: 0.55
+  preco_vm_hora_usd: 0.096
+  preco_adls_gb_mes_usd: 0.0184
+  preco_event_hubs_tu_hora_usd: 0.03
+  cambio_usd_brl: 5.40

@@ -1,0 +1,16 @@
+# Configuração de lint. Regras escolhidas para pegar erro real, não para
+# brigar com estilo — o projeto usa linhas um pouco mais longas do que 88
+# porque expressões PySpark encadeadas ficam ilegíveis quebradas demais.
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = [
+  "E501",   # comprimento de linha: já controlado por line-length no format
+  "B008",   # chamada em default de argumento (padrão comum em CLI)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["SIM117"]
+"scripts/gerar_notebooks.py" = ["E501"]
