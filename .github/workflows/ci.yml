@@ -1,0 +1,81 @@
+name: CI
+
+# A verificação que importa: um clone limpo do repositório roda a pipeline
+# inteira e passa nos testes, sem ninguém editar caminho nem baixar arquivo.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Java 17 (exigência do Spark 4)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check src tests scripts
+
+      - name: Testes
+        env:
+          PYTHONPATH: .
+          FORMATO_TABELA: parquet
+        run: pytest -q --maxfail=1
+
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Executar a pipeline batch de ponta a ponta
+        env:
+          PYTHONPATH: .
+          FORMATO_TABELA: parquet
+          SHUFFLE_PARTITIONS: "4"
+        run: python -m src.pipeline --reprocessar
+
+      - name: Verificar que a camada Gold foi publicada
+        run: |
+          for t in indicador_alfabetizacao_municipio meta_vs_realizado_uf \
+                   evolucao_temporal_brasil painel_desigualdade \
+                   ranking_municipios features_ml_municipio; do
+            test -d "data/lakehouse/gold/$t" || { echo "Faltou gold/$t"; exit 1; }
+            echo "ok: gold/$t"
+          done
+
+      - name: Publicar o relatório de monitoramento
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-monitoramento
+          path: data/_observabilidade/
