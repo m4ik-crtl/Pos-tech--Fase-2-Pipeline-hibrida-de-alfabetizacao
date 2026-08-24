@@ -1,0 +1,72 @@
+# ============================================================================
+# Contratos de dados — camada SILVER
+# Silver é o contrato "duro": tipos corretos, chaves únicas, integridade
+# referencial e faixas de negócio. O que não passa vai para a quarentena.
+# ============================================================================
+
+dim_uf:
+  descricao: "Dimensão de Unidade da Federação"
+  checks:
+    - { tipo: min_count, valor: 27, critico: true }
+    - { tipo: unico, colunas: [id_uf], critico: true }
+    - { tipo: not_null, coluna: sigla_uf, critico: true }
+    - { tipo: regex, coluna: sigla_uf, valor: "^[A-Z]{2}$", critico: true }
+    - {
+        tipo: valores_permitidos,
+        coluna: regiao,
+        valor: [Norte, Nordeste, Centro-Oeste, Sudeste, Sul],
+        critico: true,
+      }
+
+dim_municipio:
+  descricao: "Dimensão de município enriquecida com contexto socioeconômico"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    - { tipo: unico, colunas: [id_municipio], critico: true }
+    - { tipo: not_null, coluna: nome_municipio, critico: true }
+    - { tipo: chave_estrangeira, coluna: id_uf, referencia: dim_uf, coluna_referencia: id_uf, critico: true }
+    - { tipo: range, coluna: idhm, valor: [0, 1], critico: false }
+    - { tipo: range, coluna: populacao_total, valor: [0, 15000000], critico: false }
+
+fato_indicador_municipio:
+  descricao: "Indicador Criança Alfabetizada por município e ano"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    - { tipo: unico, colunas: [ano, id_municipio], critico: true }
+    - { tipo: not_null, coluna: indicador_pct, critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+    - { tipo: range, coluna: meta_pct, valor: [0, 100], critico: true }
+    - { tipo: chave_estrangeira, coluna: id_municipio, referencia: dim_municipio, critico: true }
+    - { tipo: range, coluna: matriculas_avaliadas, valor: [1, 200000], critico: true }
+
+fato_indicador_uf:
+  descricao: "Indicador e meta por UF e ano"
+  checks:
+    - { tipo: unico, colunas: [ano, sigla_uf], critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+    - { tipo: chave_estrangeira, coluna: sigla_uf, referencia: dim_uf, critico: true }
+
+fato_meta_brasil:
+  descricao: "Série nacional de meta e resultado"
+  checks:
+    - { tipo: unico, colunas: [ano], critico: true }
+    - { tipo: range, coluna: meta_pct, valor: [0, 100], critico: true }
+
+fato_aluno:
+  descricao: "Microdado de aluno avaliado"
+  checks:
+    - { tipo: min_count, valor: 1000, critico: true }
+    - { tipo: not_null, coluna: id_aluno, critico: true }
+    # Aluno sem resultado de prova ou com valor impossível vai para a quarentena.
+    # Até 0,5% da amostra pode cair nessa situação sem derrubar a execução.
+    - {
+        tipo: range,
+        coluna: proficiencia_saeb,
+        valor: [0, 1200],
+        critico: true,
+        permite_nulo: false,
+        tolerancia_pct: 0.5,
+      }
+    - { tipo: valores_permitidos, coluna: rede, valor: [MUNICIPAL, ESTADUAL, FEDERAL, PRIVADA], critico: true }
+    - { tipo: range, coluna: idade, valor: [5, 12], critico: false }
+    - { tipo: chave_estrangeira, coluna: id_municipio, referencia: dim_municipio, critico: true }
