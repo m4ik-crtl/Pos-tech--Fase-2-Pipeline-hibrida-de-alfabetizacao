@@ -1,0 +1,63 @@
+# ============================================================================
+# Contratos de dados — camada BRONZE
+# Bronze preserva o dado como veio. Os checks aqui são de *chegada*: o arquivo
+# existe, tem volume mínimo e as chaves de negócio estão presentes.
+# ============================================================================
+
+uf:
+  descricao: "Unidades da Federação (IBGE)"
+  checks:
+    - { tipo: min_count, valor: 27, critico: true }
+    - { tipo: not_null, coluna: id_uf, critico: true }
+    - { tipo: not_null, coluna: sigla_uf, critico: true }
+    - { tipo: unico, colunas: [id_uf], critico: true }
+
+municipio:
+  descricao: "Municípios brasileiros (IBGE)"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    - { tipo: not_null, coluna: id_municipio, critico: true }
+    - { tipo: not_null, coluna: id_uf, critico: true }
+    # Faixa geográfica do território brasileiro. O limite leste é -32,4
+    # (Fernando de Noronha) — um retângulo mais apertado reprovaria o arquipélago.
+    - { tipo: range, coluna: latitude, valor: [-35, 6], critico: false }
+    - { tipo: range, coluna: longitude, valor: [-75, -32], critico: false }
+
+contexto_socioeconomico_municipio:
+  descricao: "Contexto socioeconômico municipal (Atlas do Desenvolvimento Humano, Censo 2010)"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    # A chave chega com 6 dígitos (padrão do Atlas) e é normalizada na Silver.
+    - { tipo: not_null, coluna: id_municipio_6dig, critico: true }
+    - { tipo: range, coluna: idhm, valor: [0, 1], critico: true }
+
+meta_alfabetizacao_brasil:
+  descricao: "Meta e resultado nacional do Indicador Criança Alfabetizada"
+  checks:
+    - { tipo: min_count, valor: 3, critico: true }
+    - { tipo: not_null, coluna: ano, critico: true }
+    - { tipo: range, coluna: meta_pct, valor: [0, 100], critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+
+meta_alfabetizacao_uf:
+  descricao: "Meta e resultado por Unidade da Federação"
+  checks:
+    - { tipo: min_count, valor: 27, critico: true }
+    - { tipo: not_null, coluna: ano, critico: true }
+    - { tipo: not_null, coluna: sigla_uf, critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+
+meta_alfabetizacao_municipio:
+  descricao: "Meta e resultado por município"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    - { tipo: not_null, coluna: id_municipio, critico: true }
+    - { tipo: not_null, coluna: ano, critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+
+aluno:
+  descricao: "Microdados de aluno avaliado (pseudonimizados)"
+  checks:
+    - { tipo: min_count, valor: 1000, critico: true }
+    - { tipo: not_null, coluna: id_aluno, critico: true }
+    - { tipo: not_null, coluna: id_municipio, critico: true }
