@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 820" width="1440" height="820" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="setaClara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a3a3a3"/>
+    </marker>
+    <style>
+      .titulo { font-size: 25px; font-weight: 700; fill: #0f172a; }
+      .sub { font-size: 14px; fill: #64748b; }
+      .grupo { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; fill: #64748b; }
+      .caixaT { font-size: 14.5px; font-weight: 700; fill: #0f172a; }
+      .caixaS { font-size: 12px; fill: #475569; }
+      .aresta { font-size: 11.5px; fill: #64748b; }
+      .chip { font-size: 11px; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="820" fill="#ffffff"/>
+  <text class="titulo" x="48" y="52">Pipeline híbrida — Indicador Criança Alfabetizada</text>
+  <text class="sub" x="48" y="76">Arquitetura medalhão em Azure Databricks · ingestão batch + streaming · contratos de qualidade em todas as camadas</text>
+
+  <!-- ================= FONTES ================= -->
+  <text class="grupo" x="48" y="126">FONTES</text>
+  <g>
+    <rect x="48" y="140" width="212" height="62" rx="10" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text class="caixaT" x="66" y="166">INEP / MEC</text>
+    <text class="caixaS" x="66" y="186">Indicador e metas oficiais</text>
+
+    <rect x="48" y="214" width="212" height="62" rx="10" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text class="caixaT" x="66" y="240">IBGE</text>
+    <text class="caixaS" x="66" y="260">27 UFs · 5.571 municípios</text>
+
+    <rect x="48" y="288" width="212" height="62" rx="10" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text class="caixaT" x="66" y="314">Atlas PNUD · Censo</text>
+    <text class="caixaS" x="66" y="334">Contexto socioeconômico</text>
+
+    <rect x="48" y="392" width="212" height="72" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
+    <text class="caixaT" x="66" y="418">Secretarias municipais</text>
+    <text class="caixaS" x="66" y="438">Correções, novas medições</text>
+    <text class="caixaS" x="66" y="454">e repactuação de metas</text>
+  </g>
+
+  <!-- ================= INGESTÃO ================= -->
+  <text class="grupo" x="316" y="126">INGESTÃO HÍBRIDA</text>
+  <rect x="316" y="140" width="216" height="210" rx="12" fill="#eff6ff" stroke="#3b82f6"/>
+  <text class="caixaT" x="336" y="172">Batch</text>
+  <text class="caixaS" x="336" y="194">Databricks Job · 04h</text>
+  <text class="caixaS" x="336" y="214">Cluster efêmero, Spot,</text>
+  <text class="caixaS" x="336" y="230">autoscale 2–8 nós</text>
+  <text class="caixaS" x="336" y="256">Schema explícito</text>
+  <text class="caixaS" x="336" y="272">Partição por data de ingestão</text>
+  <rect x="336" y="292" width="176" height="26" rx="13" fill="#dbeafe" stroke="#93c5fd"/>
+  <text class="chip" x="352" y="309" fill="#1d4ed8">dados de referência</text>
+
+  <rect x="316" y="392" width="216" height="150" rx="12" fill="#fffbeb" stroke="#f59e0b"/>
+  <text class="caixaT" x="336" y="424">Streaming</text>
+  <text class="caixaS" x="336" y="446">Event Hubs (protocolo Kafka)</text>
+  <text class="caixaS" x="336" y="466">Structured Streaming</text>
+  <text class="caixaS" x="336" y="482">watermark 10 min · dedup</text>
+  <rect x="336" y="498" width="176" height="26" rx="13" fill="#fef3c7" stroke="#fcd34d"/>
+  <text class="chip" x="352" y="515" fill="#b45309">eventos de operação</text>
+
+  <!-- ================= LAKEHOUSE ================= -->
+  <text class="grupo" x="588" y="126">LAKEHOUSE — ADLS Gen2 + Delta</text>
+  <rect x="588" y="140" width="512" height="440" rx="14" fill="#fafafa" stroke="#e2e8f0"/>
+
+  <rect x="612" y="168" width="464" height="106" rx="10" fill="#fef2f2" stroke="#f87171"/>
+  <text class="caixaT" x="632" y="196">BRONZE — o que chegou</text>
+  <text class="caixaS" x="632" y="218">Dado bruto + linhagem (_record_hash, _run_id, _source_file)</text>
+  <text class="caixaS" x="632" y="238">Histórico completo preservado · partição por data de ingestão</text>
+  <text class="caixaS" x="632" y="258">Contrato de chegada: volume mínimo, chaves presentes</text>
+
+  <rect x="612" y="290" width="464" height="126" rx="10" fill="#f8fafc" stroke="#94a3b8"/>
+  <text class="caixaT" x="632" y="318">SILVER — o que é confiável</text>
+  <text class="caixaS" x="632" y="340">Limpeza, tipagem, deduplicação por chave de negócio</text>
+  <text class="caixaS" x="632" y="360">Normalização de chave: código IBGE 6 → 7 dígitos</text>
+  <text class="caixaS" x="632" y="380">Ausência de coleta permanece nula (nunca imputada)</text>
+  <text class="caixaS" x="632" y="400">Integração: município + UF + contexto socioeconômico</text>
+
+  <rect x="612" y="432" width="464" height="126" rx="10" fill="#fffbeb" stroke="#eab308"/>
+  <text class="caixaT" x="632" y="460">GOLD — o que se consome</text>
+  <text class="caixaS" x="632" y="482">indicador por município · meta × realizado por UF</text>
+  <text class="caixaS" x="632" y="502">evolução nacional · painel de desigualdade · ranking</text>
+  <text class="caixaS" x="632" y="522">feature store sem vazamento · indicador em tempo real</text>
+  <text class="caixaS" x="632" y="542">Z-ORDER (sigla_uf, id_municipio) · OPTIMIZE diário</text>
+
+  <!-- ================= CONSUMO ================= -->
+  <text class="grupo" x="1156" y="126">CONSUMO</text>
+  <rect x="1156" y="168" width="236" height="76" rx="10" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="caixaT" x="1176" y="196">Painel de gestão</text>
+  <text class="caixaS" x="1176" y="216">Databricks SQL / Power BI</text>
+  <text class="caixaS" x="1176" y="234">Meta × realizado por território</text>
+
+  <rect x="1156" y="260" width="236" height="76" rx="10" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="caixaT" x="1176" y="288">Análise de desigualdade</text>
+  <text class="caixaS" x="1176" y="308">Indicador por quartil de IDHM</text>
+  <text class="caixaS" x="1176" y="326">30,6% → 66,2% (2024)</text>
+
+  <rect x="1156" y="352" width="236" height="92" rx="10" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="caixaT" x="1176" y="380">Modelo preditivo</text>
+  <text class="caixaS" x="1176" y="400">Prioriza municípios em risco</text>
+  <text class="caixaS" x="1176" y="418">Só variáveis conhecidas antes</text>
+  <text class="caixaS" x="1176" y="436">do ano do alvo</text>
+
+  <rect x="1156" y="460" width="236" height="76" rx="10" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="caixaT" x="1176" y="488">Política pública</text>
+  <text class="caixaS" x="1176" y="508">Clusters de vulnerabilidade</text>
+  <text class="caixaS" x="1176" y="526">e alocação de apoio técnico</text>
+
+  <!-- ================= QUARENTENA ================= -->
+  <rect x="612" y="616" width="464" height="72" rx="10" fill="#fdf2f8" stroke="#ec4899"/>
+  <text class="caixaT" x="632" y="644">QUARENTENA — nada é descartado em silêncio</text>
+  <text class="caixaS" x="632" y="666">Registro reprovado + _motivo_quarentena · expira em 90 dias</text>
+
+  <!-- ================= OBSERVABILIDADE ================= -->
+  <rect x="48" y="616" width="512" height="140" rx="12" fill="#f5f3ff" stroke="#8b5cf6"/>
+  <text class="caixaT" x="70" y="646">OBSERVABILIDADE E FINOPS</text>
+  <text class="caixaS" x="70" y="670">pipeline_runs: falhas · latência · volume · score de qualidade</text>
+  <text class="caixaS" x="70" y="690">Azure Monitor + alerta de backlog &gt; 5 min e de job &gt; 1h</text>
+  <text class="caixaS" x="70" y="710">Tags de centro de custo · orçamento com alerta em 80%</text>
+  <text class="caixaS" x="70" y="730">Jobs Compute + Spot + auto-terminate + maxOffsetsPerTrigger</text>
+
+  <!-- ================= CONTRATOS ================= -->
+  <rect x="1156" y="616" width="236" height="140" rx="12" fill="#f0fdfa" stroke="#14b8a6"/>
+  <text class="caixaT" x="1176" y="646">CONTRATOS DE DADOS</text>
+  <text class="caixaS" x="1176" y="670">YAML declarativo por camada</text>
+  <text class="caixaS" x="1176" y="690">not_null · unico · range · FK</text>
+  <text class="caixaS" x="1176" y="710">valores_permitidos · regex</text>
+  <text class="caixaS" x="1176" y="730">crítico · tolerância · nulo</text>
+
+  <!-- ================= ARESTAS ================= -->
+  <g fill="none" stroke="#64748b" stroke-width="1.6" marker-end="url(#seta)">
+    <path d="M 260 171 L 310 200"/>
+    <path d="M 260 245 L 310 245"/>
+    <path d="M 260 319 L 310 290"/>
+    <path d="M 260 428 L 310 456"/>
+    <path d="M 532 230 L 606 215"/>
+    <path d="M 532 452 L 570 452 L 570 240 L 606 232"/>
+    <path d="M 844 274 L 844 286"/>
+    <path d="M 844 416 L 844 428"/>
+    <path d="M 1076 206 L 1150 206"/>
+    <path d="M 1076 480 L 1116 480 L 1116 298 L 1150 298"/>
+    <path d="M 1076 500 L 1150 398"/>
+    <path d="M 1076 520 L 1116 520 L 1116 498 L 1150 498"/>
+  </g>
+
+  <g fill="none" stroke="#a3a3a3" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#setaClara)">
+    <path d="M 844 584 L 844 610"/>
+    <path d="M 596 596 L 304 596 L 304 610"/>
+    <path d="M 1274 610 L 1274 584"/>
+  </g>
+
+  <text class="aresta" x="540" y="196">carga diária</text>
+  <text class="aresta" x="540" y="424">tempo quase real</text>
+  <text class="aresta" x="856" y="602">registros reprovados nas três camadas</text>
+  <text class="aresta" x="330" y="592">métricas de cada etapa</text>
+  <text class="aresta" x="1096" y="602">aplicados nas camadas</text>
+</svg>
