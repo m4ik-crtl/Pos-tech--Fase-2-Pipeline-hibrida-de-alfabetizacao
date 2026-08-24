@@ -1,0 +1,132 @@
+{
+  "gerado_em": "2026-08-24T22:25:06+00:00",
+  "semente": 42,
+  "anos": [
+    2023,
+    2024,
+    2025
+  ],
+  "ponto_corte_saeb": 743,
+  "arquivos": {
+    "uf.csv": {
+      "registros": 27,
+      "colunas": [
+        "id_uf",
+        "sigla_uf",
+        "nome_uf",
+        "regiao",
+        "latitude",
+        "longitude",
+        "fonte"
+      ]
+    },
+    "municipio.csv": {
+      "registros": 5593,
+      "colunas": [
+        "id_municipio",
+        "nome_municipio",
+        "id_uf",
+        "sigla_uf",
+        "regiao",
+        "capital",
+        "latitude",
+        "longitude",
+        "ddd",
+        "fonte"
+      ]
+    },
+    "contexto_socioeconomico_municipio.csv": {
+      "registros": 5564,
+      "colunas": [
+        "id_municipio_6dig",
+        "idhm",
+        "idhm_educacao",
+        "idhm_renda",
+        "idhm_longevidade",
+        "renda_per_capita",
+        "indice_gini",
+        "pct_pobres",
+        "pct_criancas_pobres",
+        "taxa_analfabetismo_15mais",
+        "expectativa_anos_estudo",
+        "pct_6a14_na_escola",
+        "pct_6a14_fora_escola",
+        "pct_criancas_dom_sem_fund",
+        "pct_agua_encanada",
+        "pct_energia_eletrica",
+        "pct_coleta_lixo",
+        "pct_6a14_fund_sem_atraso",
+        "populacao_total",
+        "populacao_urbana",
+        "populacao_6_anos",
+        "populacao_6a10_anos",
+        "ano_referencia",
+        "fonte"
+      ]
+    },
+    "meta_alfabetizacao_brasil.csv": {
+      "registros": 8,
+      "colunas": [
+        "ano",
+        "meta_pct",
+        "indicador_pct",
+        "origem_meta",
+        "origem_indicador",
+        "ponto_corte_saeb",
+        "fonte"
+      ]
+    },
+    "meta_alfabetizacao_uf.csv": {
+      "registros": 216,
+      "colunas": [
+        "ano",
+        "sigla_uf",
+        "meta_pct",
+        "indicador_pct",
+        "origem_meta",
+        "origem_indicador",
+        "fonte"
+      ]
+    },
+    "meta_alfabetizacao_municipio.csv": {
+      "registros": 16779,
+      "colunas": [
+        "ano",
+        "id_municipio",
+        "sigla_uf",
+        "matriculas_avaliadas",
+        "alunos_alfabetizados",
+        "indicador_pct",
+        "meta_pct",
+        "origem_indicador",
+        "origem_meta",
+        "fonte"
+      ]
+    },
+    "aluno.csv": {
+      "registros": 60240,
+      "colunas": [
+        "id_aluno",
+        "ano",
+        "id_municipio",
+        "sigla_uf",
+        "rede",
+        "localizacao",
+        "sexo",
+        "idade",
+        "proficiencia_saeb",
+        "alfabetizado",
+        "fonte"
+      ]
+    }
+  },
+  "proveniencia": {
+    "uf.csv": "REAL (IBGE)",
+    "municipio.csv": "REAL (IBGE) + defeitos controlados",
+    "contexto_socioeconomico_municipio.csv": "REAL (Atlas do Desenvolvimento Humano, Censo 2010)",
+    "meta_alfabetizacao_brasil.csv": "REAL (INEP/MEC) + interpolação da trajetória oficial",
+    "meta_alfabetizacao_uf.csv": "REAL (INEP/MEC) para o indicador; metas derivadas por regra",
+    "meta_alfabetizacao_municipio.csv": "SIMULADO calibrado pela média real de cada UF",
+    "aluno.csv": "SIMULADO calibrado pelo indicador municipal (pseudonimizado)"
+  }
+}
