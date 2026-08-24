@@ -1,0 +1,44 @@
+# ============================================================================
+# Contratos de dados — camada GOLD
+# Gold é o que chega ao painel, à análise e ao modelo. Aqui o contrato protege
+# o consumidor: nada de duplicidade de grão, nada de indicador fora de faixa,
+# e nenhuma linha sem a chave territorial.
+# ============================================================================
+
+indicador_alfabetizacao_municipio:
+  descricao: "Visão analítica municipal: indicador, meta, gap e contexto"
+  checks:
+    - { tipo: min_count, valor: 5000, critico: true }
+    - { tipo: unico, colunas: [ano, id_municipio], critico: true }
+    - { tipo: not_null, coluna: sigla_uf, critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: true }
+    - {
+        tipo: valores_permitidos,
+        coluna: status_meta,
+        valor: [ACIMA_DA_META, NA_META, ABAIXO_DA_META],
+        critico: true,
+      }
+
+meta_vs_realizado_uf:
+  descricao: "Comparação meta x realizado por UF"
+  checks:
+    - { tipo: unico, colunas: [ano, sigla_uf], critico: true }
+    - { tipo: range, coluna: indicador_pct, valor: [0, 100], critico: false }
+
+evolucao_temporal_brasil:
+  descricao: "Série histórica nacional"
+  checks:
+    - { tipo: unico, colunas: [ano], critico: true }
+    - { tipo: min_count, valor: 3, critico: true }
+
+painel_desigualdade:
+  descricao: "Indicador por quartil de IDHM e região"
+  checks:
+    - { tipo: unico, colunas: [ano, regiao, quartil_idhm], critico: true }
+
+features_ml_municipio:
+  descricao: "Feature store para predição do indicador (sem vazamento)"
+  checks:
+    - { tipo: unico, colunas: [ano, id_municipio], critico: true }
+    - { tipo: not_null, coluna: alvo_indicador_pct, critico: true }
+    - { tipo: range, coluna: alvo_indicador_pct, valor: [0, 100], critico: true }
