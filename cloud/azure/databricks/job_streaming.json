@@ -1,0 +1,70 @@
+{
+  "name": "alfabetizacao-streaming-eventos",
+  "description": "Consumo contínuo do Event Hubs (protocolo Kafka) e atualização das camadas bronze, silver e gold em tempo quase real.",
+  "tags": {
+    "projeto": "tech-challenge-fase2",
+    "camada": "streaming",
+    "centro_custo": "educacao-basica"
+  },
+  "continuous": {
+    "pause_status": "UNPAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "email_notifications": {
+    "on_failure": ["plantao-dados@exemplo.gov.br"]
+  },
+  "health": {
+    "rules": [
+      {
+        "metric": "STREAMING_BACKLOG_SECONDS",
+        "op": "GREATER_THAN",
+        "value": 300
+      },
+      {
+        "metric": "STREAMING_BACKLOG_RECORDS",
+        "op": "GREATER_THAN",
+        "value": 100000
+      }
+    ]
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "cluster_streaming",
+      "new_cluster": {
+        "spark_version": "16.4.x-scala2.13",
+        "node_type_id": "Standard_D4ads_v5",
+        "num_workers": 2,
+        "runtime_engine": "STANDARD",
+        "azure_attributes": {
+          "availability": "ON_DEMAND_AZURE"
+        },
+        "spark_conf": {
+          "spark.sql.streaming.stateStore.providerClass": "com.databricks.sql.streaming.state.RocksDBStateStoreProvider",
+          "spark.sql.shuffle.partitions": "12"
+        },
+        "spark_env_vars": {
+          "LAKEHOUSE_URI": "abfss://lakehouse@stalfabetizacaoprod.dfs.core.windows.net",
+          "FONTE_STREAM": "kafka",
+          "KAFKA_BOOTSTRAP_SERVERS": "evhns-alfabetizacao-prod.servicebus.windows.net:9093",
+          "KAFKA_TOPICO": "alfabetizacao.eventos.v1",
+          "FORMATO_TABELA": "delta",
+          "LOG_FORMATO": "json"
+        },
+        "custom_tags": {
+          "centro_custo": "educacao-basica",
+          "job": "alfabetizacao-streaming"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "consumir_eventos",
+      "job_cluster_key": "cluster_streaming",
+      "spark_python_task": {
+        "python_file": "dbfs:/artefatos/src/pipeline.py",
+        "parameters": ["--etapas", "streaming"]
+      }
+    }
+  ]
+}

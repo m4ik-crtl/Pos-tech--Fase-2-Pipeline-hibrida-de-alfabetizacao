@@ -1,0 +1,115 @@
+{
+  "name": "alfabetizacao-batch-medalhao",
+  "description": "Ingestão batch e construção das camadas bronze, silver e gold do Indicador Criança Alfabetizada. Mesmo código do repositório local.",
+  "tags": {
+    "projeto": "tech-challenge-fase2",
+    "camada": "batch",
+    "centro_custo": "educacao-basica"
+  },
+  "schedule": {
+    "quartz_cron_expression": "0 0 4 * * ?",
+    "timezone_id": "America/Sao_Paulo",
+    "pause_status": "UNPAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 7200,
+  "email_notifications": {
+    "on_failure": ["plantao-dados@exemplo.gov.br"],
+    "no_alert_for_skipped_runs": true
+  },
+  "health": {
+    "rules": [
+      {
+        "metric": "RUN_DURATION_SECONDS",
+        "op": "GREATER_THAN",
+        "value": 3600
+      }
+    ]
+  },
+  "job_clusters": [
+    {
+      "job_cluster_key": "cluster_batch",
+      "new_cluster": {
+        "spark_version": "16.4.x-scala2.13",
+        "node_type_id": "Standard_D4ads_v5",
+        "driver_node_type_id": "Standard_D4ads_v5",
+        "runtime_engine": "PHOTON",
+        "data_security_mode": "SINGLE_USER",
+        "autoscale": {
+          "min_workers": 2,
+          "max_workers": 8
+        },
+        "azure_attributes": {
+          "availability": "SPOT_WITH_FALLBACK_AZURE",
+          "spot_bid_max_price": -1,
+          "first_on_demand": 1
+        },
+        "spark_conf": {
+          "spark.sql.adaptive.enabled": "true",
+          "spark.sql.adaptive.coalescePartitions.enabled": "true",
+          "spark.databricks.delta.optimizeWrite.enabled": "true",
+          "spark.databricks.delta.autoCompact.enabled": "true"
+        },
+        "spark_env_vars": {
+          "LAKEHOUSE_URI": "abfss://lakehouse@stalfabetizacaoprod.dfs.core.windows.net",
+          "FORMATO_TABELA": "delta",
+          "LOG_FORMATO": "json",
+          "SHUFFLE_PARTITIONS": "64"
+        },
+        "custom_tags": {
+          "centro_custo": "educacao-basica",
+          "job": "alfabetizacao-batch"
+        }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "preparar_raw",
+      "job_cluster_key": "cluster_batch",
+      "python_wheel_task": {
+        "package_name": "alfabetizacao",
+        "entry_point": "preparar_raw"
+      },
+      "libraries": [{ "whl": "dbfs:/artefatos/alfabetizacao-1.0.0-py3-none-any.whl" }]
+    },
+    {
+      "task_key": "bronze",
+      "depends_on": [{ "task_key": "preparar_raw" }],
+      "job_cluster_key": "cluster_batch",
+      "spark_python_task": {
+        "python_file": "dbfs:/artefatos/src/pipeline.py",
+        "parameters": ["--etapas", "bronze"]
+      }
+    },
+    {
+      "task_key": "silver",
+      "depends_on": [{ "task_key": "bronze" }],
+      "job_cluster_key": "cluster_batch",
+      "spark_python_task": {
+        "python_file": "dbfs:/artefatos/src/pipeline.py",
+        "parameters": ["--etapas", "silver"]
+      }
+    },
+    {
+      "task_key": "gold",
+      "depends_on": [{ "task_key": "silver" }],
+      "job_cluster_key": "cluster_batch",
+      "spark_python_task": {
+        "python_file": "dbfs:/artefatos/src/pipeline.py",
+        "parameters": ["--etapas", "gold"]
+      }
+    },
+    {
+      "task_key": "otimizar_e_relatorio",
+      "depends_on": [{ "task_key": "gold" }],
+      "job_cluster_key": "cluster_batch",
+      "sql_task": {
+        "warehouse_id": "REPLACE_COM_O_ID_DO_SQL_WAREHOUSE",
+        "file": {
+          "path": "/Repos/alfabetizacao/cloud/azure/databricks/otimizacao.sql"
+        }
+      }
+    }
+  ]
+}
