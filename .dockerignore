@@ -1,0 +1,26 @@
+# Reduz o contexto de build (era ~15 MB). O que fica de fora é o que a imagem
+# não precisa: os serviços montam ./data como volume e o histórico Git não é
+# usado em tempo de execução.
+
+.git
+
+# dados: vêm do bind mount `./data:/app/data`, não da imagem
+data/lakehouse/
+data/_checkpoints/
+data/stream_in/
+data/_observabilidade/
+
+# artefatos locais
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+spark-warehouse/
+metastore_db/
+derby.log
+.env
+.idea/
+.vscode/
