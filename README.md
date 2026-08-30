@@ -11,10 +11,14 @@ camadas, observabilidade instrumentada e otimização de custo em nuvem.
 </p>
 
 ```bash
-git clone <url-do-repositorio> && cd tech-challenge-fase2
+git clone https://github.com/m4ik-crtl/Fiap-tech-2.git && cd Fiap-tech-2
 pip install -r requirements.txt
 python -m src.pipeline --reprocessar      # roda tudo: raw -> bronze -> silver -> gold
 ```
+
+> No Windows, o caminho mais previsível é `docker compose run --rm pipeline`.
+> Passo a passo completo — inclusive publicação e Databricks — em
+> **[`docs/guia_execucao.md`](docs/guia_execucao.md)**.
 
 Sem editar caminho, sem baixar arquivo à parte, sem conta em nuvem. Os dados de entrada
 estão versionados no repositório e todos os caminhos são relativos à raiz do projeto.
@@ -457,6 +461,9 @@ make testes       # suíte pytest
 make custos       # regenera a estimativa de custo
 make limpar       # apaga lakehouse, checkpoints e observabilidade
 ```
+
+Guia detalhado (Windows, Docker, WSL2, GitHub e Databricks):
+**[`docs/guia_execucao.md`](docs/guia_execucao.md)**.
 
 ### Notebooks
 
