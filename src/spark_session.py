@@ -38,6 +38,18 @@ FORMATO_EFETIVO: str = "parquet"
 KAFKA_DISPONIVEL: bool = False
 
 
+def em_databricks() -> bool:
+    """
+    Estamos rodando dentro de um cluster Databricks?
+
+    No Databricks a SparkSession já existe e é gerenciada pela plataforma. Tentar
+    criar outra — definindo master, baixando jars ou chamando `stop()` — vai de
+    erro silencioso a derrubar a sessão do notebook. Aqui a regra é simples:
+    reaproveitar o que a plataforma entregou.
+    """
+    return bool(os.getenv("DATABRICKS_RUNTIME_VERSION") or os.getenv("DB_IS_DRIVER"))
+
+
 def _config_base(builder: SparkSession.Builder) -> SparkSession.Builder:
     return (
         builder.appName("alfabetizacao-brasil")
@@ -87,6 +99,18 @@ def criar(formato: str | None = None, com_kafka: bool = False) -> SparkSession:
     global FORMATO_EFETIVO, KAFKA_DISPONIVEL
 
     formato = (formato or CFG.formato_tabela).lower()
+
+    if em_databricks():
+        # Delta e o conector Kafka já vêm no runtime — nada a resolver via Maven.
+        sessao = SparkSession.builder.getOrCreate()
+        FORMATO_EFETIVO = "parquet" if formato == "parquet" else "delta"
+        KAFKA_DISPONIVEL = com_kafka and CFG.fonte_stream == "kafka"
+        LOG.info(
+            "[SPARK] Databricks Runtime %s | sessão da plataforma reaproveitada | formato=%s",
+            os.getenv("DATABRICKS_RUNTIME_VERSION", "?"), FORMATO_EFETIVO,
+        )
+        return sessao
+
     quer_delta = formato == "delta"
     quer_kafka = com_kafka and CFG.fonte_stream == "kafka"
 
@@ -135,6 +159,17 @@ def ler_tabela(spark: SparkSession, caminho: str) -> DataFrame:
 
 def existe(caminho: str) -> bool:
     return "://" in caminho or Path(caminho).exists()
+
+
+def encerrar(sessao: SparkSession) -> None:
+    """
+    Encerra a sessão — exceto no Databricks, onde ela pertence à plataforma e
+    pararia o notebook inteiro junto.
+    """
+    if em_databricks():
+        LOG.info("[SPARK] Sessão mantida ativa (gerenciada pelo Databricks)")
+        return
+    sessao.stop()
 
 
 def limpar(caminho: str) -> None:

@@ -396,7 +396,9 @@ eventos = pd.DataFrame([{
 eventos
 '''),
     code('''
-spark.stop()
+# `encerrar` não para a sessão quando o notebook roda no Databricks — lá ela
+# pertence à plataforma e pararia o notebook inteiro junto.
+spark_session.encerrar(spark)
 print("Pipeline concluída. Relatório em data/_observabilidade/relatorio.md")
 '''),
 ])

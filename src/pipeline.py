@@ -81,7 +81,7 @@ def executar(etapas: list[str], formato: str | None = None, reprocessar: bool = 
             streaming.executar(spark)
     finally:
         runs.persistir(spark)
-        spark.stop()
+        spark_session.encerrar(spark)
 
     return 0
 
