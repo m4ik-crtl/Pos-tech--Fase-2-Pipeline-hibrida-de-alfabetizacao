@@ -54,6 +54,18 @@ docker compose --profile notebooks up jupyter
 > pipeline **não quebra**: ela registra um aviso no log e continua em Parquet. A
 > semântica é a mesma; só se perde ACID e time travel.
 
+**Se o build falhar em `openjdk-17-jre-headless has no installation candidate`,** sua
+cópia do `Dockerfile` é anterior à correção. Atualize o repositório e force a
+reconstrução:
+
+```powershell
+docker compose build --no-cache pipeline
+```
+
+A causa: a imagem `python:3.11-slim` acompanha a versão estável do Debian, que passou a
+ser o *trixie* — e o trixie removeu o pacote do Java 17. O Dockerfile agora fixa a base
+em `bookworm` e aceita Java 17 ou 21 (o Spark 4 roda nos dois).
+
 ### Opção B — WSL2 (terminal Linux no Windows)
 
 Mais leve que o Docker para iterar no código, e sem a complicação do `winutils`.
@@ -65,7 +77,10 @@ wsl --install -d Ubuntu     # só na primeira vez; reinicie a máquina depois
 Dentro do Ubuntu:
 
 ```bash
-sudo apt update && sudo apt install -y openjdk-17-jre-headless python3-venv python3-pip
+sudo apt update
+# o Spark 4 roda em Java 17 ou 21 — instale o que a sua distro oferecer
+sudo apt install -y python3-venv python3-pip \
+  && (sudo apt install -y openjdk-17-jre-headless || sudo apt install -y openjdk-21-jre-headless)
 cd "/mnt/c/caminho/para/o/projeto/Tech Challenge - Fase 2"
 
 python3 -m venv .venv && source .venv/bin/activate
@@ -266,6 +281,8 @@ O notebook já cuida de:
 | Sintoma | Causa provável | Solução |
 |---|---|---|
 | `docker: command not found` | Docker Desktop não está aberto | Abra o Docker Desktop e aguarde o ícone ficar verde |
+| `Package 'openjdk-17-jre-headless' has no installation candidate` | Versão antiga do Dockerfile, que seguia a base `python:3.11-slim` — o Debian trixie removeu o pacote | Corrigido: a base agora é fixada em `bookworm` e o build aceita Java 17 **ou** 21. Se sua cópia ainda falhar, atualize o repositório e rode `docker compose build --no-cache pipeline` |
+| `manifest for python:3.11-slim-bookworm not found` | Registro sem esse tag (raro) | Troque a linha `FROM` do `Dockerfile` por `python:3.11-slim` — o fallback para Java 21 já está no build |
 | `no configuration file provided` | PowerShell em outra pasta | `cd` para a pasta do projeto antes |
 | `JAVA_HOME is not set` | Rodando nativo sem JDK | Instale o JDK 17 ou use a Opção A |
 | `HADOOP_HOME and hadoop.home.dir are unset` | Windows nativo sem winutils | Opção A ou C, passo 2 |
