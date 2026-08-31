@@ -156,7 +156,7 @@ pytest -q                                      # 26 testes
 
 ## 3. Publicar no GitHub
 
-O repositório local já tem todo o histórico: **33 commits**, 10 branches de feature,
+O repositório local já tem todo o histórico: **48 commits**, 13 branches de feature,
 merges em estilo Pull Request e a tag `v1.0.0`.
 
 ```powershell
