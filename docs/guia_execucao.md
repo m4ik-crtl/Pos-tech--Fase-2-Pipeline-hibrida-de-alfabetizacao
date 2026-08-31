@@ -1,8 +1,7 @@
-# Guia de execução, publicação e apresentação
+# Guia de execução
 
-Passo a passo para rodar o projeto no Windows, publicar no GitHub e (opcionalmente)
-executar no Databricks. Se você só quer ver a pipeline funcionando, vá direto para a
-**Opção A**.
+Passo a passo para rodar o projeto no Windows e (opcionalmente) executar no Databricks.
+Se você só quer ver a pipeline funcionando, vá direto para a **Opção A**.
 
 ---
 
@@ -128,7 +127,7 @@ Se aparecer erro de `winutils` mesmo assim, use a Opção A — não vale gastar
 
 ## 2. O que analisar depois de rodar
 
-Ordem sugerida para você conferir o trabalho antes de gravar o vídeo:
+Ordem sugerida para conferir o trabalho:
 
 | Passo | Onde olhar | O que verificar |
 |---|---|---|
@@ -140,7 +139,7 @@ Ordem sugerida para você conferir o trabalho antes de gravar o vídeo:
 | 6 | `data/lakehouse/gold/` | As sete tabelas analíticas materializadas |
 | 7 | `data/lakehouse/_quarentena/` | Os 55 registros reprovados, com `_motivo_quarentena` |
 
-Os notebooks **já estão versionados com as saídas executadas** — você consegue ler os
+Os notebooks **já estão versionados com as saídas executadas** — dá para ler os
 resultados sem rodar nada. Rodar de novo serve para provar que reproduz.
 
 Comandos úteis durante a análise:
@@ -154,82 +153,18 @@ pytest -q                                      # 26 testes
 
 ---
 
-## 3. Publicar no GitHub
+## 3. Databricks
 
-O repositório local já tem todo o histórico: **48 commits**, 13 branches de feature,
-merges em estilo Pull Request e a tag `v1.0.0`.
+O desafio pede que a solução seja *implementada em ambiente de nuvem*. O que já está no
+repositório cobre isso: Terraform provisionando ADLS Gen2, workspace Databricks, Event
+Hubs, Log Analytics e orçamento, mais os JSONs dos jobs batch e streaming — dá para ler
+a arquitetura inteira sem que nada esteja rodando em nuvem paga.
 
-```powershell
-cd Fiap-tech-2   # a pasta do projeto
+Importar no Databricks (Free Edition serve) mostra o mesmo código rodando na
+plataforma-alvo, com o Delta nativo em vez do fallback Parquet usado localmente quando
+o jar do Delta não resolve.
 
-git remote add origin https://github.com/m4ik-crtl/Fiap-tech-2.git
-git push -u origin main --tags
-```
-
-**Se o push for rejeitado** (`! [rejected] ... fetch first`), é porque o repositório no
-GitHub foi criado com um README inicial. Como o histórico local é o que vale:
-
-```powershell
-git push -u origin main --tags --force
-```
-
-### Publicar também as branches de feature
-
-O desafio pede evidência de uso de branches e Pull Requests. Envie todas:
-
-```powershell
-git push origin --all
-```
-
-Depois disso, em *Insights → Network* no GitHub, aparece o grafo com as dez branches
-e os merges.
-
-### Abrir uma Pull Request de verdade
-
-Há uma branch **ainda não integrada**, criada exatamente para isso:
-
-```powershell
-git push origin docs/boas-praticas-contribuicao
-```
-
-No GitHub, o repositório vai oferecer *Compare & pull request*. Sugestão de descrição
-(o template já aparece preenchido — cole isto no corpo):
-
-> **O que muda**
-> Adiciona `CONTRIBUTING.md` com um checklist para evitar caminhos pessoais,
-> credenciais ou anotações privadas indo parar no repositório.
->
-> **Por quê**
-> Motivado por um vazamento real: uma versão anterior deste repositório publicou o
-> caminho local do Windows do autor em `docs/guia_execucao.md`, commitado em vários
-> pontos do histórico — precisou reescrever tudo do zero com `git-filter-repo`. O
-> checklist é o contrato mínimo para não repetir.
->
-> **Como validar**
-> `pytest -q` continua passando; `CONTRIBUTING.md` existe na raiz do repositório.
-
-Faça o merge pela interface do GitHub. Isso deixa registrada uma PR real, com discussão
-— que é o que o enunciado pede.
-
-> **Nota:** o reaproveitamento de SparkSession no Databricks (antes numa branch
-> separada) já está direto na `main` — ficar só numa PR não mergeada escondia um
-> arquivo essencial de quem importava o repositório no Databricks Repos.
-
----
-
-## 4. Databricks: vale a pena?
-
-**Resposta curta: sim, mas como demonstração — não como requisito.**
-
-O desafio pede que a solução seja *implementada em ambiente de nuvem*. O que já está
-entregue cobre isso: Terraform provisionando ADLS Gen2, workspace Databricks, Event Hubs,
-Log Analytics e orçamento, mais os JSONs dos jobs batch e streaming. Um avaliador
-consegue ler a arquitetura inteira sem que nada esteja rodando em nuvem paga.
-
-Importar no Databricks acrescenta uma coisa valiosa para o vídeo: **mostrar o mesmo
-código rodando na plataforma-alvo**, com o Delta nativo em vez do fallback Parquet.
-
-### Como importar (Free Edition serve)
+### Como importar
 
 1. Crie a conta em [databricks.com/learn/free-edition](https://www.databricks.com/learn/free-edition).
 2. No workspace: **Workspace → Repos → Add Repo** (em algumas versões, *Git folders*).
@@ -244,37 +179,19 @@ O notebook já cuida de:
 - apontar `LAKEHOUSE_URI` para `/tmp/alfabetizacao/lakehouse` (o repositório clonado não
   é lugar para gravar volume de dados);
 - usar `FORMATO_TABELA=delta`, que no Databricks é nativo;
+- detectar o runtime via `em_databricks()` e reaproveitar a SparkSession da
+  plataforma — sem `.master()`, sem baixar jars via Maven e sem `spark.stop()`, que
+  encerraria a sessão compartilhada do notebook;
 - opcionalmente registrar as tabelas Gold no Unity Catalog, o que libera consulta SQL e
   o `OPTIMIZE`/Z-ORDER de `cloud/azure/databricks/otimizacao.sql`.
 
 ### O que **não** dá para fazer na Free Edition
 
 - **Streaming com Event Hubs**: exige uma assinatura Azure com custo. A perna de
-  streaming você demonstra localmente, com o Kafka do `docker compose` — que fala o
+  streaming é demonstrada localmente, com o Kafka do `docker compose` — que fala o
   mesmo protocolo.
 - **Terraform aplicado de verdade**: `terraform plan` roda sem criar nada e já mostra o
   que seria provisionado. Não é necessário aplicar.
-
-### Minha recomendação de sequência
-
-1. Rode local com Docker e confira os números.
-2. Publique no GitHub e abra a PR.
-3. Importe no Databricks e rode o notebook — **só para gravar 30 segundos do vídeo**
-   mostrando o código na plataforma-alvo com Delta nativo.
-4. Grave o vídeo seguindo seu roteiro (mantido fora do repositório — material de preparação pessoal, não faz parte da entrega).
-
----
-
-## 5. Antes de gravar o vídeo
-
-- [ ] `docker compose run --rm pipeline` terminou com `falhas=0`
-- [ ] `data/_observabilidade/relatorio.md` atualizado
-- [ ] Notebooks 01, 03 e 04 abertos nas células dos gráficos
-- [ ] `docs/diagrama_pipeline.png` aberto em uma aba
-- [ ] Repositório no GitHub público e com as branches enviadas
-- [ ] Números na ponta da língua: **66,0%** (2025) · **85,3% CE × 36,0% BA** (2024) ·
-      **30,6% × 66,2%** (quartis de IDHM) · **R² 0,95 vazado × 0,75 honesto**
-- [ ] Roteiro cronometrado revisado (guardado fora do repositório)
 
 ---
 
@@ -289,6 +206,5 @@ O notebook já cuida de:
 | `JAVA_HOME is not set` | Rodando nativo sem JDK | Instale o JDK 17 ou use a Opção A |
 | `HADOOP_HOME and hadoop.home.dir are unset` | Windows nativo sem winutils | Opção A ou C, passo 2 |
 | `ModuleNotFoundError: No module named 'src'` | `PYTHONPATH` não definido | `$env:PYTHONPATH = "."` antes de rodar |
-| `DELTA_OVERWRITE_SCHEMA_WITH_DYNAMIC_PARTITION_OVERWRITE` | Só aparece com Delta real (internet resolvendo o jar via Maven) — `overwriteSchema=true` não é compatível com `partitionOverwriteMode=dynamic` em tabelas particionadas (ex.: `bronze.uf`) | Corrigido em `src/spark_session.py` (PR #12): a escrita força `partitionOverwriteMode=static` quando `overwriteSchema=true`. Atualize o repositório |
+| `DELTA_OVERWRITE_SCHEMA_WITH_DYNAMIC_PARTITION_OVERWRITE` | Só aparece com Delta real (internet resolvendo o jar via Maven) — `overwriteSchema=true` não é compatível com `partitionOverwriteMode=dynamic` em tabelas particionadas (ex.: `bronze.uf`) | Corrigido em `src/spark_session.py`: a escrita força `partitionOverwriteMode=static` quando `overwriteSchema=true` |
 | Pipeline diz `formato=parquet` e você esperava Delta | Jar do Delta não resolveu | Comportamento previsto — veja o aviso no log; no Docker com internet resolve |
-| `! [rejected]` no push | Repositório remoto tem commit inicial | `git push -u origin main --tags --force` |
