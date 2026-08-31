@@ -191,7 +191,7 @@ def gerar() -> Path:
 
     destino = CFG.raiz / "docs" / "dicionario_dados.md"
     destino.write_text("\n".join(linhas) + "\n", encoding="utf-8")
-    spark.stop()
+    spark_session.encerrar(spark)
     LOG.info("[DOC] Dicionário gerado em docs/dicionario_dados.md")
     return destino
 
