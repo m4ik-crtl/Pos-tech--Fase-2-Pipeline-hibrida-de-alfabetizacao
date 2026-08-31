@@ -16,10 +16,11 @@ precisar instalar Java nem lidar com o `winutils` que o Spark exige no Windows n
 **Pré-requisito:** [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 instalado e aberto (o ícone da baleia precisa estar rodando).
 
-Abra o **PowerShell** na pasta do projeto:
+Clone o repositório e entre na pasta:
 
 ```powershell
-cd "C:\caminho\para\o\projeto\Tech Challenge - Fase 2"
+git clone https://github.com/m4ik-crtl/Fiap-tech-2.git
+cd Fiap-tech-2
 
 # 1) Pipeline batch completa: raw -> bronze -> silver -> gold
 docker compose run --rm pipeline
@@ -81,7 +82,7 @@ sudo apt update
 # o Spark 4 roda em Java 17 ou 21 — instale o que a sua distro oferecer
 sudo apt install -y python3-venv python3-pip \
   && (sudo apt install -y openjdk-17-jre-headless || sudo apt install -y openjdk-21-jre-headless)
-cd "/mnt/c/caminho/para/o/projeto/Tech Challenge - Fase 2"
+cd Fiap-tech-2   # a pasta onde você clonou o repositório
 
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
@@ -112,7 +113,7 @@ setx PATH "$env:PATH;C:\hadoop\bin"
 4. Rode:
 
 ```powershell
-cd "C:\caminho\para\o\projeto\Tech Challenge - Fase 2"
+cd Fiap-tech-2   # a pasta onde você clonou o repositório
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
@@ -159,7 +160,7 @@ O repositório local já tem todo o histórico: **33 commits**, 10 branches de f
 merges em estilo Pull Request e a tag `v1.0.0`.
 
 ```powershell
-cd "C:\caminho\para\o\projeto\Tech Challenge - Fase 2"
+cd Fiap-tech-2   # a pasta do projeto
 
 git remote add origin https://github.com/m4ik-crtl/Fiap-tech-2.git
 git push -u origin main --tags
@@ -188,27 +189,31 @@ e os merges.
 Há uma branch **ainda não integrada**, criada exatamente para isso:
 
 ```powershell
-git push origin feat/compatibilidade-databricks
+git push origin chore/organizacao-documentacao
 ```
 
 No GitHub, o repositório vai oferecer *Compare & pull request*. Sugestão de descrição
 (o template já aparece preenchido — cole isto no corpo):
 
 > **O que muda**
-> Detecta execução dentro do Databricks e reaproveita a SparkSession da plataforma.
+> Move o roteiro de gravação do vídeo (`docs/script_video.md`) para fora do
+> repositório.
 >
 > **Por quê**
-> No Databricks a sessão já existe e é gerenciada pelo runtime. Chamar `.master()`,
-> baixar jars via Maven ou executar `spark.stop()` vai de erro silencioso a derrubar o
-> notebook inteiro. A função `em_databricks()` detecta o ambiente pela variável
-> `DATABRICKS_RUNTIME_VERSION` e a função `encerrar()` substitui o `stop()` direto.
+> É material de preparação pessoal (o que falar, em que ordem, cronometragem) — não é
+> algo que um avaliador precisa e não deveria ficar num repositório público.
+> Documentação que ajuda a *rodar* o projeto (este guia, o dicionário de dados, os
+> ADRs) continua versionada normalmente.
 >
 > **Como validar**
-> `pytest -q` e `python -m src.pipeline --reprocessar` continuam passando localmente;
-> no Databricks, rodar `cloud/azure/databricks/notebook_databricks.py`.
+> `pytest -q` continua passando; `docs/script_video.md` não existe mais no repositório.
 
 Faça o merge pela interface do GitHub. Isso deixa registrada uma PR real, com discussão
 — que é o que o enunciado pede.
+
+> **Nota:** o reaproveitamento de SparkSession no Databricks (antes numa branch
+> separada) já está direto na `main` — ficar só numa PR não mergeada escondia um
+> arquivo essencial de quem importava o repositório no Databricks Repos.
 
 ---
 
@@ -241,9 +246,6 @@ O notebook já cuida de:
 - usar `FORMATO_TABELA=delta`, que no Databricks é nativo;
 - opcionalmente registrar as tabelas Gold no Unity Catalog, o que libera consulta SQL e
   o `OPTIMIZE`/Z-ORDER de `cloud/azure/databricks/otimizacao.sql`.
-
-> **Importante:** faça o merge da PR `feat/compatibilidade-databricks` antes — é ela que
-> ensina o projeto a reaproveitar a sessão Spark da plataforma.
 
 ### O que **não** dá para fazer na Free Edition
 
