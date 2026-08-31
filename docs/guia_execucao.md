@@ -189,24 +189,24 @@ e os merges.
 Há uma branch **ainda não integrada**, criada exatamente para isso:
 
 ```powershell
-git push origin chore/organizacao-documentacao
+git push origin docs/boas-praticas-contribuicao
 ```
 
 No GitHub, o repositório vai oferecer *Compare & pull request*. Sugestão de descrição
 (o template já aparece preenchido — cole isto no corpo):
 
 > **O que muda**
-> Move o roteiro de gravação do vídeo (`docs/script_video.md`) para fora do
-> repositório.
+> Adiciona `CONTRIBUTING.md` com um checklist para evitar caminhos pessoais,
+> credenciais ou anotações privadas indo parar no repositório.
 >
 > **Por quê**
-> É material de preparação pessoal (o que falar, em que ordem, cronometragem) — não é
-> algo que um avaliador precisa e não deveria ficar num repositório público.
-> Documentação que ajuda a *rodar* o projeto (este guia, o dicionário de dados, os
-> ADRs) continua versionada normalmente.
+> Motivado por um vazamento real: uma versão anterior deste repositório publicou o
+> caminho local do Windows do autor em `docs/guia_execucao.md`, commitado em vários
+> pontos do histórico — precisou reescrever tudo do zero com `git-filter-repo`. O
+> checklist é o contrato mínimo para não repetir.
 >
 > **Como validar**
-> `pytest -q` continua passando; `docs/script_video.md` não existe mais no repositório.
+> `pytest -q` continua passando; `CONTRIBUTING.md` existe na raiz do repositório.
 
 Faça o merge pela interface do GitHub. Isso deixa registrada uma PR real, com discussão
 — que é o que o enunciado pede.
@@ -261,7 +261,7 @@ O notebook já cuida de:
 2. Publique no GitHub e abra a PR.
 3. Importe no Databricks e rode o notebook — **só para gravar 30 segundos do vídeo**
    mostrando o código na plataforma-alvo com Delta nativo.
-4. Grave o vídeo seguindo `docs/script_video.md`.
+4. Grave o vídeo seguindo seu roteiro (mantido fora do repositório — material de preparação pessoal, não faz parte da entrega).
 
 ---
 
@@ -274,7 +274,7 @@ O notebook já cuida de:
 - [ ] Repositório no GitHub público e com as branches enviadas
 - [ ] Números na ponta da língua: **66,0%** (2025) · **85,3% CE × 36,0% BA** (2024) ·
       **30,6% × 66,2%** (quartis de IDHM) · **R² 0,95 vazado × 0,75 honesto**
-- [ ] Roteiro cronometrado: `docs/script_video.md`
+- [ ] Roteiro cronometrado revisado (guardado fora do repositório)
 
 ---
 
