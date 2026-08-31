@@ -287,5 +287,6 @@ O notebook já cuida de:
 | `JAVA_HOME is not set` | Rodando nativo sem JDK | Instale o JDK 17 ou use a Opção A |
 | `HADOOP_HOME and hadoop.home.dir are unset` | Windows nativo sem winutils | Opção A ou C, passo 2 |
 | `ModuleNotFoundError: No module named 'src'` | `PYTHONPATH` não definido | `$env:PYTHONPATH = "."` antes de rodar |
+| `DELTA_OVERWRITE_SCHEMA_WITH_DYNAMIC_PARTITION_OVERWRITE` | Só aparece com Delta real (internet resolvendo o jar via Maven) — `overwriteSchema=true` não é compatível com `partitionOverwriteMode=dynamic` em tabelas particionadas (ex.: `bronze.uf`) | Corrigido em `src/spark_session.py` (PR #12): a escrita força `partitionOverwriteMode=static` quando `overwriteSchema=true`. Atualize o repositório |
 | Pipeline diz `formato=parquet` e você esperava Delta | Jar do Delta não resolveu | Comportamento previsto — veja o aviso no log; no Docker com internet resolve |
 | `! [rejected]` no push | Repositório remoto tem commit inicial | `git push -u origin main --tags --force` |
