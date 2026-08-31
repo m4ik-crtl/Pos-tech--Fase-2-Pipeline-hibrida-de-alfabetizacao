@@ -125,6 +125,15 @@ def escrever_tabela(
         writer = writer.partitionBy(*particoes)
     if FORMATO_EFETIVO == "delta":
         writer = writer.option("overwriteSchema", "true")
+        if modo == "overwrite":
+            # `overwriteSchema=true` só é aceito em modo estático de sobrescrita
+            # de partição — conflita com o `partitionOverwriteMode=dynamic`
+            # configurado globalmente na sessão (útil para cargas incrementais
+            # que preservam partições não tocadas). Aqui cada execução resscreve
+            # a tabela inteira (mode="overwrite", e `--reprocessar` já limpa o
+            # diretório antes), então "static" é o modo correto, não um
+            # contorno: DELTA_OVERWRITE_SCHEMA_WITH_DYNAMIC_PARTITION_OVERWRITE.
+            writer = writer.option("partitionOverwriteMode", "static")
     writer.save(caminho)
     return caminho
 
