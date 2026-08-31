@@ -106,8 +106,10 @@ services:
       - "8888:8888"
     volumes:
       - ./:/app
-    command: >
-      sh -c "pip install --no-cache-dir jupyter &&
-             jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser
-             --allow-root --NotebookApp.token='' --NotebookApp.password=''"
+    # Uma única linha: o bloco dobrado (>) do YAML, com as linhas de
+    # continuação MAIS indentadas que a primeira, faz o YAML preservar as
+    # quebras de linha em vez de dobrá-las em espaço — o "--allow-root"
+    # acabava virando um comando novo para o shell (`sh: --allow-root: not
+    # found`), e o Jupyter reiniciava em loop por rodar como root sem a flag.
+    command: "sh -c \"pip install --no-cache-dir jupyter && jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''\""
     profiles: ["notebooks"]
