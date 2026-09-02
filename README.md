@@ -6,6 +6,11 @@ Pipeline de dados híbrida (batch + streaming) em arquitetura medalhão, constru
 **Indicador Criança Alfabetizada** do INEP/MEC, com contratos de qualidade em todas as
 camadas, observabilidade instrumentada e otimização de custo em nuvem.
 
+## 🎬 Apresentação em Vídeo
+
+[![Assista no YouTube](https://img.shields.io/badge/YouTube-Assistir%20Apresentação-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=PxvgVcwGWkE)
+
+---
 <p align="center">
   <img src="docs/diagrama_pipeline.png" alt="Arquitetura da pipeline híbrida" width="100%">
 </p>
